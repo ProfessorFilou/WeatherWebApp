@@ -14,69 +14,53 @@
   <style>
     body { 
       font-family: 'Inter', system-ui, -apple-system, sans-serif; 
-      transition: background 1.2s ease-in-out;
+      transition: background 1.5s ease-in-out;
       background-attachment: fixed;
       background-size: 100% 100%;
+      position: relative;
+      overflow-x: hidden;
     }
     
-    /* ─── Apple Mesh-Gradients (Passend zum echten Wetter & Tageszeit) ─── */
+    /* ─── Apple Mesh-Gradients ─── */
+    body.theme-sunny-day { background: radial-gradient(circle at 70% 15%, #7ec2f3 0%, #3a88e9 45%, #1a5cb1 100%); }
+    body.theme-sunny-night { background: radial-gradient(circle at 30% 20%, #1a2a4a 0%, #0d1627 60%, #050814 100%); }
+    body.theme-cloudy-day { background: radial-gradient(circle at 50% 10%, #a2b5c6 0%, #788fa2 50%, #536677 100%); }
+    body.theme-cloudy-night { background: radial-gradient(circle at 50% 10%, #2c353e 0%, #1c2228 60%, #0f1317 100%); }
+    body.theme-rain-day { background: radial-gradient(circle at 40% 20%, #4b617a 0%, #304055 50%, #1b2636 100%); }
+    body.theme-rain-night { background: radial-gradient(circle at 40% 20%, #182230 0%, #0f1620 60%, #070a0f 100%); }
+    body.theme-snow-day { background: radial-gradient(circle at 60% 20%, #cbdce9 0%, #9cb3c9 50%, #758da5 100%); }
+    body.theme-snow-night { background: radial-gradient(circle at 60% 20%, #2b3641 0%, #1a222a 60%, #0f141a 100%); }
     
-    /* Sonnig / Klarer Tag: Sattes Blau mit hellem Sonnenzentrum */
-    body.theme-sunny-day {
-      background: radial-gradient(circle at 70% 20%, #7ec2f3 0%, #3a88e9 40%, #1a5cb1 100%);
+    /* Globaler Vollbild-Wetterhintergrund */
+    #globalWeatherCanvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      pointer-events: none;
+      z-index: -1; /* Hinter allen Elementen, vor dem CSS-Hintergrund */
     }
-    /* Klare Nacht: Tiefes Dunkelblau mit leichtem violettem Schimmer */
-    body.theme-sunny-night {
-      background: radial-gradient(circle at 30% 20%, #1a2a4a 0%, #0d1627 60%, #050814 100%);
-    }
-    
-    /* Bewölkt / Nebel Tag: Gedämpftes, weiches Graublau */
-    body.theme-cloudy-day {
-      background: radial-gradient(circle at 50% 10%, #a2b5c6 0%, #788fa2 50%, #536677 100%);
-    }
-    /* Bewölkt Nacht: Sehr düsteres Aschblau */
-    body.theme-cloudy-night {
-      background: radial-gradient(circle at 50% 10%, #2c353e 0%, #1c2228 60%, #0f1317 100%);
-    }
-    
-    /* Regen / Gewitter Tag: Dunkles, atmosphärisches Schieferblau */
-    body.theme-rain-day {
-      background: radial-gradient(circle at 40% 20%, #4b617a 0%, #304055 50%, #1b2636 100%);
-    }
-    /* Regen Nacht: Nahezu Schwarzblau */
-    body.theme-rain-night {
-      background: radial-gradient(circle at 40% 20%, #182230 0%, #0f1620 60%, #070a0f 100%);
-    }
-    
-    /* Schnee Tag: Helles, frostiges Graublau/Weiß-Blau */
-    body.theme-snow-day {
-      background: radial-gradient(circle at 60% 20%, #cbdce9 0%, #9cb3c9 50%, #758da5 100%);
-    }
-    /* Schnee Nacht: Kaltes, dunkles Nordlicht-Grau */
-    body.theme-snow-night {
-      background: radial-gradient(circle at 60% 20%, #2b3641 0%, #1a222a 60%, #0f141a 100%);
-    }
-    
-    /* Glassmorphismus Kacheln */
+
+    /* Hochwertige Apple Glas-Kacheln */
     .glass {
-      background: rgba(255, 255, 255, 0.06);
-      backdrop-filter: blur(30px);
-      -webkit-backdrop-filter: blur(30px);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      box-shadow: 0 15px 35px -10px rgb(0 0 0 / 0.15);
-      transition: background 0.5s ease, border-color 0.5s ease;
+      background: rgba(255, 255, 255, 0.05);
+      backdrop-filter: blur(25px);
+      -webkit-backdrop-filter: blur(25px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      box-shadow: 0 10px 30px -10px rgb(0 0 0 / 0.15);
     }
     
     .search-bar {
       background: rgba(255, 255, 255, 0.08);
       backdrop-filter: blur(20px);
-      border: 1px solid rgba(255, 255, 255, 0.12);
+      border: 1px solid rgba(255, 255, 255, 0.1);
     }
     
     .unit-toggle {
       background: rgba(255, 255, 255, 0.08);
       backdrop-filter: blur(20px);
-      border: 1px solid rgba(255, 255, 255, 0.12);
+      border: 1px solid rgba(255, 255, 255, 0.1);
       border-radius: 9999px;
       position: relative;
       overflow: hidden;
@@ -91,9 +75,9 @@
       left: 4px;
       width: calc(50% - 4px);
       height: calc(100% - 8px);
-      background: rgba(255, 255, 255, 0.2);
+      background: rgba(255, 255, 255, 0.18);
       border-radius: 9999px;
-      border: 1px solid rgba(255, 255, 255, 0.25);
+      border: 1px solid rgba(255, 255, 255, 0.2);
       transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }
     
@@ -101,9 +85,9 @@
     .unit-toggle.fahrenheit::after { transform: translateX(100%); }
     
     .temp {
-      font-size: clamp(5rem, 20vw, 8.5rem);
+      font-size: clamp(5.5rem, 22vw, 9rem);
       line-height: 0.85;
-      font-weight: 200;
+      font-weight: 100;
       letter-spacing: -0.03em;
     }
     
@@ -111,7 +95,7 @@
       height: 280px;
       border-radius: 20px;
       overflow: hidden;
-      border: 1px solid rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.08);
     }
     
     #suggestions {
@@ -119,9 +103,9 @@
       top: 100%;
       left: 0;
       right: 0;
-      background: rgba(20, 25, 35, 0.92);
+      background: rgba(20, 25, 35, 0.9);
       backdrop-filter: blur(24px);
-      border: 1px solid rgba(255, 255, 255, 0.12);
+      border: 1px solid rgba(255, 255, 255, 0.1);
       border-radius: 20px;
       max-height: 300px;
       overflow-y: auto;
@@ -137,20 +121,6 @@
       border-bottom: 1px solid rgba(255, 255, 255, 0.05);
     }
     .suggestion-item:hover { background: rgba(255, 255, 255, 0.08); }
-    
-    .weather-scene {
-      position: relative;
-      overflow: hidden;
-      border-radius: 24px;
-      height: 240px;
-    }
-
-    #weatherCanvas {
-      position: absolute;
-      inset: 0;
-      pointer-events: none;
-      z-index: 1;
-    }
 
     /* Apple 10-Tage-Leiste */
     .apple-bar-bg {
@@ -192,7 +162,10 @@
   </style>
 </head>
 <body class="text-white min-h-screen antialiased theme-sunny-day">
-  <div class="max-w-6xl mx-auto p-4 sm:p-6 lg:p-8">
+
+  <canvas id="globalWeatherCanvas"></canvas>
+
+  <div class="max-w-6xl mx-auto p-4 sm:p-6 lg:p-8 relative z-10">
     
     <div class="flex flex-wrap items-center gap-4 mb-8">
       <div class="flex items-center gap-3">
@@ -225,27 +198,24 @@
       
       <div class="md:col-span-2 space-y-6">
         
-        <div class="flex flex-col items-center text-center py-4">
+        <div class="flex flex-col items-center text-center py-6">
           <h2 id="cityName" class="text-3xl sm:text-4xl font-normal tracking-wide drop-shadow-sm">Laden…</h2>
           <div id="temperature" class="temp mt-2 select-none">--</div>
-          <p id="weatherDesc" class="text-lg sm:text-xl font-medium text-white/90 mt-1">Laden…</p>
+          <p id="weatherDesc" class="text-lg sm:text-xl font-medium text-white/90 mt-2">Laden…</p>
           <div class="flex gap-4 text-sm font-semibold text-white/80 mt-2">
             <span>H: <span id="todayMax">--</span></span>
             <span>T: <span id="todayMin">--</span></span>
           </div>
         </div>
 
-        <div id="currentWeatherCard" class="glass rounded-2xl weather-scene">
-          <canvas id="weatherCanvas"></canvas>
-          <div class="absolute inset-0 flex items-center justify-between px-8 z-10 pointer-events-none">
-            <div>
-              <p class="text-[11px] font-bold uppercase tracking-wider text-white/60">Gefühlt</p>
-              <p id="feelsLike" class="text-3xl font-light mt-0.5">--</p>
-            </div>
-            <div class="text-right">
-              <p class="text-[11px] font-bold uppercase tracking-wider text-white/60">Wind</p>
-              <p id="windSpeed" class="text-3xl font-light mt-0.5">--</p>
-            </div>
+        <div class="glass rounded-2xl p-6 flex items-center justify-between px-8">
+          <div>
+            <p class="text-[11px] font-bold uppercase tracking-wider text-white/60">Gefühlt</p>
+            <p id="feelsLike" class="text-3xl font-light mt-0.5">--</p>
+          </div>
+          <div class="text-right">
+            <p class="text-[11px] font-bold uppercase tracking-wider text-white/60">Wind</p>
+            <p id="windSpeed" class="text-3xl font-light mt-0.5">--</p>
           </div>
         </div>
 
@@ -396,11 +366,9 @@
         const w = weatherCodes[code] ?? { desc: "Unbekannt", type: "cloudy" };
         document.getElementById("weatherDesc").textContent = w.desc;
 
-        // Bestimmung ob Tag oder Nacht (Apple-Style)
         const isDay = data.current.is_day === 1;
         const timeSuffix = isDay ? "-day" : "-night";
         
-        // Dynamisches Mesh-Gradient Theme am Body setzen
         document.body.className = "text-white min-h-screen antialiased theme-" + w.type + timeSuffix;
 
         updateDisplay(data);
@@ -441,45 +409,83 @@
       }
     }
 
-    /* ─────────────── Canvas Engine ─────────────── */
+    /* ─────────────── Vollbild Canvas Engine ─────────────── */
     function initCanvas() {
-      canvas = document.getElementById("weatherCanvas");
+      canvas = document.getElementById("globalWeatherCanvas");
       ctx    = canvas.getContext("2d");
+      
       function resize() {
-        canvas.width  = document.getElementById("currentWeatherCard").offsetWidth;
-        canvas.height = document.getElementById("currentWeatherCard").offsetHeight;
+        canvas.width  = window.innerWidth;
+        canvas.height = window.innerHeight;
         initClouds();
       }
-      new ResizeObserver(resize).observe(document.getElementById("currentWeatherCard"));
+      window.addEventListener("resize", resize);
       resize();
       animate();
     }
 
     function initClouds() {
       cloudObjs = [];
-      for (let i = 0; i < 5; i++) {
-        cloudObjs.push({ x: Math.random() * canvas.width, y: Math.random() * 40 + 20, size: Math.random() * 30 + 35, speed: Math.random() * 0.1 + 0.05 });
+      // Extrem langsame, große Wolken für den Hintergrund (Apple-Stil)
+      let count = weatherType === 'cloudy' ? 12 : 5;
+      for (let i = 0; i < count; i++) {
+        cloudObjs.push({
+          x: Math.random() * canvas.width,
+          y: Math.random() * (canvas.height * 0.6),
+          sizeX: Math.random() * 180 + 150,
+          sizeY: Math.random() * 80 + 60,
+          speed: Math.random() * 0.08 + 0.03
+        });
       }
     }
 
     function animate() {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
+      
+      // Sonne im Hintergrund bei gutem Wetter
       if (weatherType === 'sunny') {
-        ctx.fillStyle = "rgba(255, 253, 230, 0.12)";
-        ctx.beginPath(); ctx.arc(canvas.width - 50, 50, 45, 0, Math.PI * 2); ctx.fill();
+        let gradient = ctx.createRadialGradient(canvas.width * 0.75, canvas.height * 0.2, 10, canvas.width * 0.75, canvas.height * 0.2, 250);
+        gradient.addColorStop(0, 'rgba(255, 255, 240, 0.15)');
+        gradient.addColorStop(0.2, 'rgba(255, 240, 200, 0.05)');
+        gradient.addColorStop(1, 'rgba(255, 255, 255, 0)');
+        ctx.fillStyle = gradient;
+        ctx.beginPath();
+        ctx.arc(canvas.width * 0.75, canvas.height * 0.2, 250, 0, Math.PI * 2);
+        ctx.fill();
       }
-      ctx.fillStyle = "rgba(255, 255, 255, 0.08)";
+
+      // Wolken zeichnen
+      ctx.fillStyle = "rgba(255, 255, 255, 0.04)";
       cloudObjs.forEach(c => {
-        ctx.beginPath(); ctx.arc(c.x, c.y, c.size, 0, Math.PI * 2); ctx.fill();
-        c.x += c.speed; if (c.x > canvas.width + 50) c.x = -80;
+        ctx.beginPath();
+        ctx.ellipse(c.x, c.y, c.sizeX, c.sizeY, 0, 0, Math.PI * 2);
+        ctx.fill();
+        c.x += c.speed;
+        if (c.x > canvas.width + c.sizeX) c.x = -c.sizeX;
       });
+
+      // Regen oder Schnee über den ganzen Bildschirm fallen lassen
       if (weatherType === 'rain' || weatherType === 'snow') {
-        ctx.strokeStyle = weatherType === 'rain' ? "rgba(14, 165, 233, 0.25)" : "rgba(255,255,255,0.4)";
-        ctx.lineWidth = 1.2;
+        ctx.strokeStyle = weatherType === 'rain' ? "rgba(255, 255, 255, 0.15)" : "rgba(255, 255, 255, 0.35)";
+        ctx.lineWidth = weatherType === 'rain' ? 1 : 2;
+        
         particles.forEach(p => {
-          ctx.beginPath(); ctx.moveTo(p.x, p.y); 
-          weatherType === 'rain' ? ctx.lineTo(p.x, p.y + p.len) : ctx.arc(p.x, p.y, p.len/4, 0, Math.PI*2);
-          ctx.stroke(); p.y += p.speed; if (p.y > canvas.height) p.y = -20;
+          ctx.beginPath();
+          if (weatherType === 'rain') {
+            ctx.moveTo(p.x, p.y);
+            ctx.lineTo(p.x + 1, p.y + p.len);
+            ctx.stroke();
+          } else {
+            ctx.arc(p.x, p.y, p.len / 4, 0, Math.PI * 2);
+            ctx.fillStyle = "rgba(255, 255, 255, 0.35)";
+            ctx.fill();
+          }
+          
+          p.y += p.speed;
+          if (p.y > canvas.height) {
+            p.y = -20;
+            p.x = Math.random() * canvas.width;
+          }
         });
       }
       requestAnimationFrame(animate);
@@ -488,8 +494,18 @@
     function updateWeatherAnimation(code) {
       weatherType = (weatherCodes[code] ?? { type: 'cloudy' }).type;
       particles = [];
+      initClouds();
+      
       if (weatherType === 'rain' || weatherType === 'snow') {
-        for (let i = 0; i < 40; i++) particles.push({ x: Math.random() * canvas.width, y: Math.random() * canvas.height, len: Math.random() * 10 + 8, speed: Math.random() * 3 + 4 });
+        let maxParticles = weatherType === 'rain' ? 60 : 40;
+        for (let i = 0; i < maxParticles; i++) {
+          particles.push({
+            x: Math.random() * window.innerWidth,
+            y: Math.random() * window.innerHeight,
+            len: Math.random() * 12 + 10,
+            speed: weatherType === 'rain' ? Math.random() * 2 + 3 : Math.random() * 0.5 + 0.8
+          });
+        }
       }
     }
 

@@ -232,9 +232,14 @@
         </div>
 
         <div class="glass rounded-2xl p-4">
-          <div class="text-white/60 text-xs font-bold uppercase tracking-wider mb-3 flex items-center gap-2">
-            <i class="fa-solid fa-map"></i>
-            <span>Wetterkarte</span>
+          <div class="text-white/60 text-xs font-bold uppercase tracking-wider mb-3 flex items-center justify-between border-b border-white/10 pb-2">
+            <div class="flex items-center gap-2">
+              <i class="fa-solid fa-map"></i>
+              <span>Wetterkarte</span>
+            </div>
+            <button onclick="toggleMapTheme()" id="mapThemeBtn" class="bg-white/10 hover:bg-white/15 w-8 height-8 p-1.5 rounded-xl transition-all active:scale-90 flex items-center justify-center text-sm" title="Karten-Design ändern">
+              <i id="mapThemeIcon" class="fa-solid fa-sun text-amber-400"></i>
+            </button>
           </div>
           <div id="map" class="map-container"></div>
         </div>
@@ -301,7 +306,8 @@
 
   <script>
     /* ─────────────── State ─────────────── */
-    let map, marker;
+    let map, marker, currentTileLayer;
+    let currentMapTheme = 'dark'; // Startet standardmäßig dunkel
     let currentLat = 47.88, currentLon = 11.70;
     let currentUnit = 'C';
     let currentData = null;
@@ -312,7 +318,7 @@
     let weatherType = 'sunny';
 
     const weatherCodes = {
-      0:  { desc: "Klarer Himmel",       type: "sunny",  icon: "☀️" },
+      0:  { desc: "Klarer Himmel",    type: "sunny",  icon: "☀️" },
       1:  { desc: "Überwiegend klar",    type: "sunny",  icon: "🌤️" },
       2:  { desc: "Teilweise bewölkt",     type: "cloudy", icon: "⛅" },
       3:  { desc: "Bewölkt",               type: "cloudy", icon: "☁️" },
@@ -513,11 +519,40 @@
     function updateMap(lat, lon) {
       if (!map) {
         map = L.map('map', { zoomControl: false }).setView([lat, lon], 9);
-        L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png').addTo(map);
+        
+        // Initialen Layer setzen (Dark)
+        currentTileLayer = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png').addTo(map);
+        
         map.on('click', e => getWeather(e.latlng.lat, e.latlng.lng));
       } else { map.setView([lat, lon], map.getZoom()); }
       if (marker) marker.remove();
       marker = L.marker([lat, lon]).addTo(map);
+    }
+
+    /* Funktion zum Umschalten der Karte (Weiß / Schwarz) */
+    function toggleMapTheme() {
+      if (!map) return;
+      
+      const icon = document.getElementById("mapThemeIcon");
+      
+      // Alten Layer entfernen
+      map.removeLayer(currentTileLayer);
+      
+      if (currentMapTheme === 'dark') {
+        // Zu hellem / weißem Design wechseln
+        currentTileLayer = L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png').addTo(map);
+        currentMapTheme = 'light';
+        
+        // Icon zu Mond ändern
+        icon.className = "fa-solid fa-moon text-indigo-200";
+      } else {
+        // Zurück zu dunklem Design wechseln
+        currentTileLayer = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png').addTo(map);
+        currentMapTheme = 'dark';
+        
+        // Icon zu Sonne ändern
+        icon.className = "fa-solid fa-sun text-amber-400";
+      }
     }
 
     /* ─────────────── Lists Generation ─────────────── */
@@ -589,6 +624,7 @@
     document.getElementById("searchInput").addEventListener("input", e => searchLocation(e.target.value));
     document.addEventListener("click", e => { if (!e.target.closest("#searchInput") && !e.target.closest("#suggestions")) document.getElementById("suggestions").style.display = "none"; });
 
+    /************* Main Location Entry Point *************/
     function getCurrentLocation() {
       navigator.geolocation.getCurrentPosition(p => getWeather(p.coords.latitude, p.coords.longitude), () => getWeather(47.88, 11.70));
     }

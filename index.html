@@ -307,8 +307,8 @@
   <script>
     /* ─────────────── State ─────────────── */
     let map, marker, currentTileLayer;
-    let currentMapTheme = 'dark'; // Startet standardmäßig dunkel
-    let currentLat = 47.88, currentLon = 11.70;
+    let currentMapTheme = 'dark';
+    let currentLat = 48.137, currentLon = 11.575; // Standard auf München geändert
     let currentUnit = 'C';
     let currentData = null;
 
@@ -350,10 +350,18 @@
         const res = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json&zoom=10&accept-language=de`);
         const data = await res.json();
         if (data.address) {
-          return data.address.city || data.address.town || data.address.village || data.address.county || 'Holzkirchen';
+          // Verbesserte Hierarchie: Sucht nach Stadt, Ort, Dorf, Stadtteil oder Gemeinde
+          return data.address.city || 
+                 data.address.town || 
+                 data.address.village || 
+                 data.address.suburb || 
+                 data.address.municipality || 
+                 data.address.hamlet || 
+                 data.address.county || 
+                 "Unbekannter Ort";
         }
-        return "Holzkirchen";
-      } catch (e) { return "Holzkirchen"; }
+        return "Unbekannter Ort";
+      } catch (e) { return "Unbekannter Ort"; }
     }
 
     async function getWeather(lat, lon) {
@@ -519,38 +527,25 @@
     function updateMap(lat, lon) {
       if (!map) {
         map = L.map('map', { zoomControl: false }).setView([lat, lon], 9);
-        
-        // Initialen Layer setzen (Dark)
         currentTileLayer = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png').addTo(map);
-        
         map.on('click', e => getWeather(e.latlng.lat, e.latlng.lng));
       } else { map.setView([lat, lon], map.getZoom()); }
       if (marker) marker.remove();
       marker = L.marker([lat, lon]).addTo(map);
     }
 
-    /* Funktion zum Umschalten der Karte (Weiß / Schwarz) */
     function toggleMapTheme() {
       if (!map) return;
-      
       const icon = document.getElementById("mapThemeIcon");
-      
-      // Alten Layer entfernen
       map.removeLayer(currentTileLayer);
       
       if (currentMapTheme === 'dark') {
-        // Zu hellem / weißem Design wechseln
         currentTileLayer = L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png').addTo(map);
         currentMapTheme = 'light';
-        
-        // Icon zu Mond ändern
         icon.className = "fa-solid fa-moon text-indigo-200";
       } else {
-        // Zurück zu dunklem Design wechseln
         currentTileLayer = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png').addTo(map);
         currentMapTheme = 'dark';
-        
-        // Icon zu Sonne ändern
         icon.className = "fa-solid fa-sun text-amber-400";
       }
     }
@@ -624,9 +619,12 @@
     document.getElementById("searchInput").addEventListener("input", e => searchLocation(e.target.value));
     document.addEventListener("click", e => { if (!e.target.closest("#searchInput") && !e.target.closest("#suggestions")) document.getElementById("suggestions").style.display = "none"; });
 
-    /************* Main Location Entry Point *************/
     function getCurrentLocation() {
-      navigator.geolocation.getCurrentPosition(p => getWeather(p.coords.latitude, p.coords.longitude), () => getWeather(47.88, 11.70));
+      // Wenn erlaubt, nimm den Live-Standort, sonst standardmäßig München (48.137, 11.575)
+      navigator.geolocation.getCurrentPosition(
+        p => getWeather(p.coords.latitude, p.coords.longitude), 
+        () => getWeather(48.137, 11.575) 
+      );
     }
 
     window.onload = () => { initCanvas(); getCurrentLocation(); };
